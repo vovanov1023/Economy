@@ -1,0 +1,7 @@
+bot-token:
+channel-id:
+
+currency: deepslate_diamond_ore
+currency-alias: DO
+atm-block: lodestone
+atm-radius: 4
