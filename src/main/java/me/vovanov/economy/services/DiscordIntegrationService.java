@@ -1,4 +1,4 @@
-package me.vovanov.economy.integrations;
+package me.vovanov.economy.services;
 
 import github.scarsz.discordsrv.DiscordSRV;
 import me.vovanov.economy.Economy;
@@ -19,12 +19,12 @@ import java.util.function.Consumer;
 /**
  * Represents a class that contains methods for working with Discord integration
  */
-public class DiscordIntegration {
+public class DiscordIntegrationService {
     private TextChannel channel;
     private JDA bot;
     private final ConcurrentHashMap<UUID, String> discordUsers = new ConcurrentHashMap<>();
 
-    private static DiscordIntegration instance;
+    private static DiscordIntegrationService instance;
 
     /**
      * Pretty straightforward. Initializes the integration.
@@ -78,8 +78,8 @@ public class DiscordIntegration {
      * Returns the Discord integration instance
      * @return DiscordIntegration instance
      */
-    public static DiscordIntegration getInstance() {
-        if (instance == null) instance = new DiscordIntegration();
+    public static DiscordIntegrationService getInstance() {
+        if (instance == null) instance = new DiscordIntegrationService();
         return instance;
     }
 

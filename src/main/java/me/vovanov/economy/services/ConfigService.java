@@ -1,6 +1,5 @@
 package me.vovanov.economy.services;
 
-import me.vovanov.economy.integrations.DiscordIntegration;
 import me.vovanov.economy.Economy;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -61,7 +60,7 @@ public class ConfigService {
         Economy plugin = Economy.getInstance();
         plugin.reloadConfig();
         setupConfig(plugin);
-        DiscordIntegration discord = DiscordIntegration.getInstance();
+        DiscordIntegrationService discord = DiscordIntegrationService.getInstance();
         discord.initialiseBot(botToken, channelId);
     }
 
