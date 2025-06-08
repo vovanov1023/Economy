@@ -25,6 +25,7 @@ public final class Economy extends JavaPlugin {
     public void onDisable() {
         DiscordIntegration.getInstance().shutDownJDA();
         this.getLogger().info("Plugin disabled");
+        this.getLogger().severe("pipis");
     }
 
     private void registerCommands() {
