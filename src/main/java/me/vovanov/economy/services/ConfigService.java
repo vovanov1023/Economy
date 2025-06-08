@@ -5,6 +5,7 @@ import me.vovanov.economy.Economy;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.ApiStatus;
 
 public class ConfigService {
 
@@ -51,9 +52,11 @@ public class ConfigService {
     }
 
     /**
-     * Reloads the config and fetches values from the disc.
+     * Reloads the config and fetches values from the disc.<br>
      * If any of the values are invalid, the default values will be used
+     * @apiNote Internal use only
      */
+    @ApiStatus.Internal
     public void reloadConfig() {
         Economy plugin = Economy.getInstance();
         plugin.reloadConfig();

@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.bukkit.*;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -16,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 /**
- * Represents a Class containing methods needed for Discord integration
+ * Represents a class that contains methods for working with Discord integration
  */
 public class DiscordIntegration {
     private TextChannel channel;
@@ -27,8 +28,10 @@ public class DiscordIntegration {
 
     /**
      * Pretty straightforward. Initializes the integration.
-     * Creates a JDA instance, gets a logging channel, etc.
+     * Creates a JDA instance, gets a logging channel, etc. <br>
+     * @apiNote Internal use only
      */
+    @ApiStatus.Internal
     public void initialiseBot(@NotNull String token, long id) {
 
         createBot(token);
@@ -44,6 +47,8 @@ public class DiscordIntegration {
                 bot = JDABuilder.createDefault(token)
                         .enableIntents(GatewayIntent.DIRECT_MESSAGES)
                         .build();
+            } else {
+                shutDownJDA();
             }
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to create the bot: "+e.getMessage());
@@ -140,7 +145,9 @@ public class DiscordIntegration {
 
     /**
      * Shuts down the JDA instance associated with this DiscordIntegration.
+     * @apiNote Internal use only
      */
+    @ApiStatus.Internal
     public void shutDownJDA() {
         if (bot == null) return;
         Economy plugin = Economy.getInstance();
