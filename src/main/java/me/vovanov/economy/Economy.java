@@ -1,6 +1,7 @@
 package me.vovanov.economy;
 
 import me.vovanov.economy.commands.EcoReloadCommand;
+import me.vovanov.economy.repositories.BankAccountRepo;
 import me.vovanov.economy.services.DiscordIntegrationService;
 import me.vovanov.economy.services.ConfigService;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -14,6 +15,9 @@ public final class Economy extends JavaPlugin {
 
         ConfigService service = ConfigService.getInstance();
         service.reloadConfig();
+
+        BankAccountRepo bankAccountRepo = BankAccountRepo.getInstance();
+        bankAccountRepo.setup();
 
         registerCommands();
 
