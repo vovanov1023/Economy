@@ -15,11 +15,9 @@ public final class Economy extends JavaPlugin {
 
         ConfigService service = ConfigService.getInstance();
         service.reloadConfig();
-
-        BankAccountRepo bankAccountRepo = BankAccountRepo.getInstance();
-        bankAccountRepo.setup();
-
         registerCommands();
+
+        BankAccountRepo.setup();
 
         this.getLogger().info("Plugin enabled");
     }
