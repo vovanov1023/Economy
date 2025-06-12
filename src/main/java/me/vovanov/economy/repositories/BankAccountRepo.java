@@ -27,7 +27,7 @@ public class BankAccountRepo {
                 plugin.getLogger().info("Successfully created user data file");
             }
         } catch (IOException e) {
-            plugin.getLogger().severe("An I/O error occurred while creating user data file\nDetails: "+e.getCause());
+            plugin.getLogger().severe("An I/O exception occurred while creating user data file\nDetails: "+e.getCause());
         }
     }
 
@@ -49,14 +49,30 @@ public class BankAccountRepo {
         return new BankAccountRepo(player, section);
     }
 
-    private void saveSection() {
+    public static void createNewAccount(OfflinePlayer player) {
         Economy plugin = Economy.getInstance();
-        OfflinePlayer holder = this.PLAYER;
-        STORAGE_CONTENTS.set(holder.getUniqueId().toString(), CONFIG_SECTION);
+        String uuid = player.getUniqueId().toString();
+        ConfigurationSection existingSection = STORAGE_CONTENTS.getConfigurationSection(uuid);
+        if (existingSection != null) return;
+        ConfigurationSection section = STORAGE_CONTENTS.createSection(uuid);
+        section.set("balance", 0);
+        section.set("credits", List.of());
         try {
             STORAGE_CONTENTS.save(STORAGE_FILE);
         } catch (IOException e) {
-            plugin.getLogger().severe("An I/O error occurred while saving the data for '"+holder.getName()+"' ("+holder.getUniqueId()+")\nDetails: "+e.getCause());
+            plugin.getLogger().severe("An I/O exception occurred while creating an account for '"+player.getName()+"' ("+uuid+")\nDetails: "+e.getCause());
+        }
+    }
+
+    private void saveSection() {
+        Economy plugin = Economy.getInstance();
+        OfflinePlayer holder = this.PLAYER;
+        String uuid = holder.getUniqueId().toString();
+        STORAGE_CONTENTS.set(uuid, CONFIG_SECTION);
+        try {
+            STORAGE_CONTENTS.save(STORAGE_FILE);
+        } catch (IOException e) {
+            plugin.getLogger().severe("An I/O exception occurred while saving the data for '"+holder.getName()+"' ("+uuid+")\nDetails: "+e.getCause());
         }
     }
 
