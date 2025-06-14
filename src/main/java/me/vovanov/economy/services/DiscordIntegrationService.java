@@ -56,6 +56,7 @@ public class DiscordIntegrationService {
     }
 
     private void awaitReady() {
+        if (bot == null) return;
         Economy plugin = Economy.getInstance();
         try {
             bot.awaitReady();
@@ -65,6 +66,7 @@ public class DiscordIntegrationService {
     }
 
     private void setupLoggingChannel(long id) {
+        if (bot == null) return;
         Economy plugin = Economy.getInstance();
         channel = bot.getTextChannelById(id);
         if (channel == null) {

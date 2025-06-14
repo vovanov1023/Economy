@@ -3,41 +3,55 @@ package me.vovanov.economy.model;
 import me.vovanov.economy.repositories.BankAccountRepo;
 import org.bukkit.OfflinePlayer;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EconomyUser {
     private int balance;
-    private final List<Credit> CREDIT_LIST;
     private final OfflinePlayer PLAYER;
-    private final BankAccountRepo DATA;
+    private final BankAccountRepo REPO;
+
+    private static final Map<OfflinePlayer, EconomyUser> USER_MAP = new HashMap<>();
 
     public static EconomyUser getUser(OfflinePlayer player) {
-        BankAccountRepo data = BankAccountRepo.getData(player);
+        EconomyUser cachedUser = USER_MAP.get(player);
+        if (cachedUser != null) return cachedUser;
+
+        BankAccountRepo data = BankAccountRepo.getRepo(player);
         if (data == null) return null;
-        return new EconomyUser(player, data);
+
+        EconomyUser newUser = new EconomyUser(player, data);
+        if (!USER_MAP.containsKey(player)) USER_MAP.put(player, newUser);
+        return newUser;
     }
 
-    private EconomyUser(OfflinePlayer player, BankAccountRepo data) {
-        this.balance = data.getBalance();
-        this.DATA = data;
+    private EconomyUser(OfflinePlayer player, BankAccountRepo repo) {
+        this.balance = repo.getBalance();
+        this.REPO = repo;
         this.PLAYER = player;
-        this.CREDIT_LIST = data.getCreditIDList().stream().map(Credit::getCredit).toList();
     }
 
     public int getBalance() {
         return balance;
     }
 
+    public void addToBalance(int toAdd) {
+        balance += toAdd;
+        REPO.saveBalance(balance);
+    }
+
+    public void subtractFromBalance(int toSubtract) {
+        balance -= toSubtract;
+        REPO.saveBalance(balance);
+    }
+
     public void setBalance(Integer newBalance) {
         balance = newBalance;
-        DATA.saveBalance(newBalance);
+        REPO.saveBalance(balance);
     }
 
     public OfflinePlayer getPlayer() {
         return PLAYER;
     }
 
-    public List<Credit> getCreditList() {
-        return CREDIT_LIST;
-    }
 }

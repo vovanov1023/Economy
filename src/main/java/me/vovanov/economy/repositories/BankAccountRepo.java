@@ -8,7 +8,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class BankAccountRepo {
     private static final File PLUGIN_DATA_FOLDER = Economy.getInstance().getDataFolder();
@@ -17,8 +18,7 @@ public class BankAccountRepo {
 
     private final OfflinePlayer PLAYER;
     private final ConfigurationSection CONFIG_SECTION;
-    private int balance;
-    private final List<Integer> creditIDList;
+    private final Set<Integer> CREDIT_ID_SET;
 
     public static void setup() {
         Economy plugin = Economy.getInstance();
@@ -34,8 +34,7 @@ public class BankAccountRepo {
     private BankAccountRepo(OfflinePlayer player, ConfigurationSection section) {
         this.PLAYER = player;
         this.CONFIG_SECTION = section;
-        this.balance = section.getInt("balance");
-        this.creditIDList = section.getIntegerList("credits");
+        this.CREDIT_ID_SET = new HashSet<>(section.getIntegerList("credits"));
     }
 
     /**
@@ -43,7 +42,7 @@ public class BankAccountRepo {
      * @param player the player to get the data for
      * @return the data or null if the player doesn't have a bank account
      */
-    public static BankAccountRepo getData(OfflinePlayer player) {
+    public static BankAccountRepo getRepo(OfflinePlayer player) {
         ConfigurationSection section = STORAGE_CONTENTS.getConfigurationSection(player.getUniqueId().toString());
         if (section == null) return null;
         return new BankAccountRepo(player, section);
@@ -56,7 +55,7 @@ public class BankAccountRepo {
         if (existingSection != null) return;
         ConfigurationSection section = STORAGE_CONTENTS.createSection(uuid);
         section.set("balance", 0);
-        section.set("credits", List.of());
+        section.set("credits", Set.of());
         try {
             STORAGE_CONTENTS.save(STORAGE_FILE);
         } catch (IOException e) {
@@ -81,28 +80,27 @@ public class BankAccountRepo {
     }
 
     public int getBalance() {
-        return balance;
+        return CONFIG_SECTION.getInt("balance");
     }
 
     public void saveBalance(int newBalance) {
-        this.balance = newBalance;
         CONFIG_SECTION.set("balance", newBalance);
         saveSection();
     }
 
-    public List<Integer> getCreditIDList() {
-        return this.creditIDList;
+    public Set<Integer> getCreditIDSet() {
+        return this.CREDIT_ID_SET;
     }
 
     public void removeCreditID(Integer id) {
-        this.creditIDList.remove(id);
-        CONFIG_SECTION.set("credits", creditIDList);
+        this.CREDIT_ID_SET.remove(id);
+        CONFIG_SECTION.set("credits", CREDIT_ID_SET);
         saveSection();
     }
 
     public void addCreditID(Integer id) {
-        this.creditIDList.add(id);
-        CONFIG_SECTION.set("credits", creditIDList);
+        this.CREDIT_ID_SET.add(id);
+        CONFIG_SECTION.set("credits", CREDIT_ID_SET);
         saveSection();
     }
 
