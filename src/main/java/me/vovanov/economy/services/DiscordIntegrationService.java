@@ -24,7 +24,7 @@ public class DiscordIntegrationService {
     private JDA bot;
     private final ConcurrentHashMap<UUID, String> discordUsers = new ConcurrentHashMap<>();
 
-    private static DiscordIntegrationService instance;
+    private static final DiscordIntegrationService instance = new DiscordIntegrationService();
 
     /**
      * Pretty straightforward. Initializes the integration.
@@ -32,11 +32,11 @@ public class DiscordIntegrationService {
      * @apiNote Internal use only
      */
     @ApiStatus.Internal
-    public void initialiseBot(@NotNull String token, long id) {
+    public void initialiseBot(String botToken, long channelId) {
 
-        createBot(token);
+        createBot(botToken);
         awaitReady();
-        setupLoggingChannel(id);
+        setupLoggingChannel(channelId);
 
     }
 
@@ -81,7 +81,6 @@ public class DiscordIntegrationService {
      * @return DiscordIntegration instance
      */
     public static DiscordIntegrationService getInstance() {
-        if (instance == null) instance = new DiscordIntegrationService();
         return instance;
     }
 

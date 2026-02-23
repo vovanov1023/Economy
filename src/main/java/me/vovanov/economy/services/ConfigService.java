@@ -15,10 +15,9 @@ public class ConfigService {
     private String currencyAlias = "DO";
     private int atmRadius = 4;
 
-    private static ConfigService service;
+    private static final ConfigService service = new ConfigService();
 
     public static ConfigService getInstance() {
-        if (service == null) service = new ConfigService();
         return service;
     }
 
@@ -51,6 +50,20 @@ public class ConfigService {
     }
 
     /**
+     * @return the Discord Bot token
+     */
+    public String getBotToken() {
+        return this.botToken;
+    }
+
+    /**
+     * @return the logging channel id
+     */
+    public long getChannelId() {
+        return this.channelId;
+    }
+
+    /**
      * Reloads the config and fetches values from the disc.<br>
      * If any of the values are invalid, the default values will be used
      * @apiNote Internal use only
@@ -60,8 +73,6 @@ public class ConfigService {
         Economy plugin = Economy.getInstance();
         plugin.reloadConfig();
         setupConfig(plugin);
-        DiscordIntegrationService discord = DiscordIntegrationService.getInstance();
-        discord.initialiseBot(botToken, channelId);
     }
 
     private void setupConfig(JavaPlugin plugin) {
@@ -82,22 +93,20 @@ public class ConfigService {
 
     private Material getMaterial(FileConfiguration config, String path, Material defaultValue) {
         String materialName = config.getString(path);
-        Economy plugin = Economy.getInstance();
         if (materialName == null) {
-            plugin.getLogger().warning("Value for path '" +path+ "' not found. Using default: "+defaultValue);
+            sendConfigWarning(path, defaultValue.toString());
             return defaultValue;
         }
         Material material = Material.matchMaterial(materialName);
         if (material != null) return material;
-        plugin.getLogger().warning("Value for path '" +path+ "' is invalid. Using default: "+defaultValue);
+        sendConfigWarning(path, defaultValue.toString());
         return defaultValue;
     }
 
     private String getCurrencyAlias(FileConfiguration config) {
         String string = config.getString("currency-alias");
-        Economy plugin = Economy.getInstance();
         if (string == null) {
-            plugin.getLogger().warning("Value for path 'currency-alias' not found. Using default: DO");
+            sendConfigWarning("currency-alias", "DO");
             return "DO";
         }
         return string;
@@ -105,12 +114,16 @@ public class ConfigService {
 
     private int getAtmRadius(FileConfiguration config) {
         int number = config.getInt("atm-radius");
-        Economy plugin = Economy.getInstance();
         if (number < 1) {
-            plugin.getLogger().warning("Value for path 'atm-radius' is invalid. Using default: 4");
+            sendConfigWarning("atm-radius", String.valueOf(4));
             return 4;
         }
         return number;
+    }
+
+    private void sendConfigWarning(String path, String defaultValue) {
+        Economy plugin = Economy.getInstance();
+        plugin.getLogger().warning("Value for path '" +path+ "' not found. Using default: "+defaultValue);
     }
 
 }

@@ -4,20 +4,33 @@ import me.vovanov.economy.commands.EcoReloadCommand;
 import me.vovanov.economy.repositories.BankAccountRepo;
 import me.vovanov.economy.services.DiscordIntegrationService;
 import me.vovanov.economy.services.ConfigService;
+import me.vovanov.economy.services.EconomyUserService;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class Economy extends JavaPlugin {
+import java.util.UUID;
+
+public final class Economy extends JavaPlugin implements Listener {
     private static Economy instance;
 
     @Override
     public void onEnable() {
         instance = this;
+        saveDefaultConfig();
 
-        ConfigService service = ConfigService.getInstance();
-        service.reloadConfig();
+        ConfigService config = ConfigService.getInstance();
+        config.reloadConfig();
         registerCommands();
+        registerEventListeners();
 
-        BankAccountRepo.setup();
+        DiscordIntegrationService discord = DiscordIntegrationService.getInstance();
+        discord.initialiseBot(config.getBotToken(), config.getChannelId());
+
+        BankAccountRepo.getInstance().setup();
 
         this.getLogger().info("Plugin enabled");
     }
@@ -29,8 +42,19 @@ public final class Economy extends JavaPlugin {
         //potassium
     }
 
+    @EventHandler
+    public void onPlayerLeave(PlayerQuitEvent event) {
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(event.getPlayer().getName());
+        UUID uuid = offlinePlayer.getUniqueId();
+        EconomyUserService.unloadUser(uuid);
+    }
+
     private void registerCommands() {
         getCommand("economyreload").setExecutor(new EcoReloadCommand());
+    }
+
+    private void registerEventListeners() {
+        getServer().getPluginManager().registerEvents(this, this);
     }
 
     public static Economy getInstance() {
