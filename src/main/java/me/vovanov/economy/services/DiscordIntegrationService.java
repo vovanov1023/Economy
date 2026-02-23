@@ -43,13 +43,10 @@ public class DiscordIntegrationService {
     private void createBot(String token) {
         Economy plugin = Economy.getInstance();
         try {
-            if (bot == null) {
-                bot = JDABuilder.createDefault(token)
-                        .enableIntents(GatewayIntent.DIRECT_MESSAGES)
-                        .build();
-            } else {
-                shutDownJDA();
-            }
+            if (bot != null) shutDownJDA();
+            bot = JDABuilder.createDefault(token)
+                    .enableIntents(GatewayIntent.DIRECT_MESSAGES)
+                    .build();
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to create the bot: "+e.getMessage());
         }
