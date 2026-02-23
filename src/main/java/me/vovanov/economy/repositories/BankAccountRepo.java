@@ -49,18 +49,18 @@ public class BankAccountRepo {
         }
     }
 
-    public EconomyUser load(UUID playerUUID) {
-        ConfigurationSection playerEconomyData = STORAGE_CONTENTS.getConfigurationSection(playerUUID.toString());
+    public EconomyUser load(OfflinePlayer player) {
+        ConfigurationSection playerEconomyData = STORAGE_CONTENTS.getConfigurationSection(player.getUniqueId().toString());
         if (playerEconomyData == null) return null;
         int balance = playerEconomyData.getInt("balance");
-        return new EconomyUser(balance, playerUUID);
+        return new EconomyUser(balance, player);
     }
 
     public void save(EconomyUser user) {
         Economy plugin = Economy.getInstance();
         UUID playerUUID = user.getPlayerUUID();
         ConfigurationSection playerEconomyData = STORAGE_CONTENTS.getConfigurationSection(playerUUID.toString());
-        OfflinePlayer holder = Bukkit.getOfflinePlayer(playerUUID);
+        OfflinePlayer holder = user.getPlayer();
 
         if (playerEconomyData == null) {
             plugin.getLogger().severe("Couldn't save data for '"+holder.getName()+"' ("+playerUUID+") because they don't have an account saved on a disc");

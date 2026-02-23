@@ -44,9 +44,7 @@ public final class Economy extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
-        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(event.getPlayer().getName());
-        UUID uuid = offlinePlayer.getUniqueId();
-        EconomyUserService.unloadUser(uuid);
+        EconomyUserService.unloadUser(event.getPlayer());
     }
 
     private void registerCommands() {
