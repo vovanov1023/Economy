@@ -1,20 +1,17 @@
 package me.vovanov.economy.model;
 
-import org.bukkit.OfflinePlayer;
-
 import java.util.List;
 import java.util.UUID;
 
 public class EconomyUser {
     private int balance;
-    private final UUID PLAYER_UUID;
-    private final OfflinePlayer PLAYER;
-    private List<CreditEntry> activeCredits;
+    private final UUID playerUUID;
+    private final List<CreditEntry> activeCredits;
 
-    public EconomyUser(int balance, OfflinePlayer player) {
+    public EconomyUser(int balance, UUID playerUUID, List<CreditEntry> creditList) {
         this.balance = balance;
-        this.PLAYER_UUID = player.getUniqueId();
-        this.PLAYER = player;
+        this.playerUUID = playerUUID;
+        this.activeCredits = creditList;
     }
 
     public int getBalance() {
@@ -22,11 +19,7 @@ public class EconomyUser {
     }
 
     public UUID getPlayerUUID() {
-        return this.PLAYER_UUID;
-    }
-
-    public OfflinePlayer getPlayer() {
-        return this.PLAYER;
+        return this.playerUUID;
     }
 
     public List<CreditEntry> getActiveCredits() {

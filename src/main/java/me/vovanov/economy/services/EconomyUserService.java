@@ -1,9 +1,9 @@
 package me.vovanov.economy.services;
 
+import me.vovanov.economy.Economy;
 import me.vovanov.economy.model.EconomyUser;
 import me.vovanov.economy.model.enums.TransactionResult;
-import me.vovanov.economy.repositories.BankAccountRepo;
-import org.bukkit.Bukkit;
+import me.vovanov.economy.repositories.BankAccountRepository;
 import org.bukkit.OfflinePlayer;
 
 import java.util.HashMap;
@@ -13,25 +13,38 @@ import java.util.UUID;
 public class EconomyUserService {
     private static final Map<UUID, EconomyUser> economyUserMap = new HashMap<>();
 
-
-
     public static EconomyUser getUser(OfflinePlayer player) {
-        return economyUserMap.computeIfAbsent(player.getUniqueId(), uuid -> BankAccountRepo.getInstance().load(player));
+        return getUser(player.getUniqueId());
+    }
+
+    public static EconomyUser getUser(UUID uuid) {
+        return economyUserMap.computeIfAbsent(uuid, k -> Economy.getInstance().getRepository().load(uuid));
+    }
+
+    public static EconomyUser createBankAccount(OfflinePlayer player) {
+        Economy.getInstance().getRepository().createNewAccount(player.getUniqueId());
+        return getUser(player);
     }
 
     public static void unloadUser(OfflinePlayer player) {
         EconomyUser user = economyUserMap.remove(player.getUniqueId());
-        if (user != null) BankAccountRepo.getInstance().save(user);
+        if (user != null) Economy.getInstance().getRepository().save(user);
+    }
+
+    public static void saveUsers() {
+        for (EconomyUser user : economyUserMap.values()) {
+            Economy.getInstance().getRepository().save(user);
+        }
     }
 
     public static void modifyBalance(EconomyUser user, int amount) {
         user.deposit(amount);
-        BankAccountRepo.getInstance().save(user);
+        Economy.getInstance().getRepository().save(user);
     }
 
     public static void setBalance(EconomyUser user, int newBalance) {
         user.setBalance(newBalance);
-        BankAccountRepo.getInstance().save(user);
+        Economy.getInstance().getRepository().save(user);
     }
 
     public static TransactionResult transferMoney(EconomyUser sender, EconomyUser receiver, int amount, String comment) {
@@ -40,7 +53,7 @@ public class EconomyUserService {
         if (receiver == null) return TransactionResult.RECEIVER_NOT_FOUND;
 
         int senderBalance = sender.getBalance();
-        BankAccountRepo bankRepo = BankAccountRepo.getInstance();
+        BankAccountRepository bankRepo = Economy.getInstance().getRepository();
         if (amount <= 0) return TransactionResult.INVALID_AMOUNT;
         if (senderBalance < amount) return TransactionResult.INSUFFICIENT_FUNDS;
 
@@ -50,7 +63,9 @@ public class EconomyUserService {
         bankRepo.save(receiver);
 
         String finalComment = (comment == null || comment.isEmpty()) ? "No comment" : comment;
-        DiscordIntegrationService.getInstance().sendToLogChannel(sender.getPlayer().getName()+" transferred "+amount+" "+ConfigService.getInstance().getCurrencyAlias()+" to "+receiver.getPlayer().getName()+"\nComment: "+finalComment);
+        String senderName = org.bukkit.Bukkit.getOfflinePlayer(sender.getPlayerUUID()).getName();
+        String receiverName = org.bukkit.Bukkit.getOfflinePlayer(receiver.getPlayerUUID()).getName();
+        DiscordIntegrationService.getInstance().sendToLogChannel(senderName+" transferred "+amount+" "+ConfigService.getInstance().getCurrencyAlias()+" to "+receiverName+"\nComment: "+finalComment);
 
         return TransactionResult.SUCCESS;
     }

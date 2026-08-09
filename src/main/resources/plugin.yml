@@ -4,6 +4,7 @@ main: me.vovanov.economy.Economy
 api-version: ${minecraftVersion}
 author: vovanov
 description: Жёсткая крутая экономика
+depend: [Vault]
 softdepend: ["DiscordSRV"]
 permissions:
   economy.reload:
