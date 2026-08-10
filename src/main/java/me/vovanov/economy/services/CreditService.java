@@ -1,10 +1,8 @@
 package me.vovanov.economy.services;
 
-import me.vovanov.economy.Economy;
 import me.vovanov.economy.model.CreditEntry;
 import me.vovanov.economy.model.EconomyUser;
 import me.vovanov.economy.model.enums.TransactionResult;
-import me.vovanov.economy.repositories.BankAccountRepository;
 
 import java.util.UUID;
 
@@ -19,7 +17,6 @@ public class CreditService {
         CreditEntry newCredit = new CreditEntry(amount, amount, interestRate, deadline);
         debtor.deposit(amount);
         debtor.getActiveCredits().add(newCredit);
-        Economy.getInstance().getRepository().save(debtor);
 
         return TransactionResult.SUCCESS;
     }
@@ -38,7 +35,6 @@ public class CreditService {
         if (paidCredit == null) return TransactionResult.CREDIT_NOT_FOUND;
         if (paidCredit.getAmount() < amountToPay) return TransactionResult.EXCESSIVE_AMOUNT;
         paidCredit.withdraw(amountToPay);
-        Economy.getInstance().getRepository().save(debtor);
 
         return TransactionResult.SUCCESS;
     }

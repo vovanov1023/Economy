@@ -173,7 +173,7 @@ public class VaultEconomyProvider implements Economy {
 
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer offlinePlayer, String s, double v) {
-        return withdrawPlayer(offlinePlayer, v); // Перенаправляем на основной метод
+        return withdrawPlayer(offlinePlayer, v);
     }
 
     /**
@@ -210,7 +210,7 @@ public class VaultEconomyProvider implements Economy {
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer offlinePlayer, String s, double v) {
-        return depositPlayer(offlinePlayer, v); // Перенаправляем на основной метод
+        return depositPlayer(offlinePlayer, v);
     }
 
     /**

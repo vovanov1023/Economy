@@ -42,6 +42,11 @@ public class DiscordIntegrationService {
 
     private void createBot(String token) {
         Economy plugin = Economy.getInstance();
+        if (token == null) {
+            plugin.getLogger().warning("A Discord bot token wasn't specified in the configuration file and the "+
+                    "integration hasn't been enabled. Specify the bot token in the configuration and restart the server.");
+            return;
+        }
         try {
             if (bot != null) shutDownJDA();
             bot = JDABuilder.createDefault(token)

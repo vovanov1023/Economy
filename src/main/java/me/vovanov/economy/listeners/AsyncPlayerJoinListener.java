@@ -1,6 +1,5 @@
 package me.vovanov.economy.listeners;
 
-import me.vovanov.economy.Economy;
 import me.vovanov.economy.model.EconomyUser;
 import me.vovanov.economy.services.EconomyUserService;
 import org.bukkit.event.EventHandler;
@@ -16,8 +15,7 @@ public class AsyncPlayerJoinListener implements Listener {
         EconomyUser user = EconomyUserService.getUser(playerID);
 
         if (user == null) {
-            Economy.getInstance().getRepository().createNewAccount(playerID);
-            EconomyUserService.getUser(playerID);
+            EconomyUserService.createBankAccount(playerID);
         }
     }
 }

@@ -1,41 +1,40 @@
 package me.vovanov.economy.repositories;
 
 import me.vovanov.economy.model.EconomyUser;
-import org.bukkit.OfflinePlayer;
 
 import java.util.UUID;
 
 public interface BankAccountRepository {
     
     /**
-     * Инициализирует репозиторий: подключается к базе данных и создает необходимые таблицы.
+     * Initializes the repository: connects to the database and creates the necessary tables.
      */
     void setup() throws Exception;
 
     /**
-     * Создает новый банковский счет для игрока по его UUID.
+     * Creates a new bank account for the player by their UUID.
      *
-     * @param playerUUID UUID игрока
+     * @param playerUUID player UUID
      */
     void createNewAccount(UUID playerUUID);
 
     /**
-     * Загружает данные пользователя из базы данных.
+     * Loads the user data from the database.
      *
-     * @param playerUUID UUID игрока, данные которого нужно загрузить
-     * @return Объект EconomyUser или null, если аккаунт не найден
+     * @param playerUUID UUID of the player
+     * @return EconomyUser object or null, if the account hasn't been found
      */
     EconomyUser load(UUID playerUUID);
 
     /**
-     * Сохраняет состояние пользователя в базу данных.
+     * Saves the user to the database
      *
-     * @param user Данные пользователя для сохранения
+     * @param user user data needed for saving
      */
     void save(EconomyUser user);
     
     /**
-     * Закрывает соединение с базой данных при отключении плагина.
+     * Closes the database connection
      */
     void close();
 }

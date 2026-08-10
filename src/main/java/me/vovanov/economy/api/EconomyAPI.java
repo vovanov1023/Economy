@@ -46,4 +46,12 @@ public class EconomyAPI {
         if (user == null) return -1;
         return user.getBalance();
     }
+
+    /**
+     * @param userID the users UUID
+    * @return true if the user has a bank account
+    * */
+    public static boolean hasBankAccount(UUID userID) {
+        return EconomyUserService.getUser(userID) != null;
+    }
 }

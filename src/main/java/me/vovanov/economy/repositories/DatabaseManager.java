@@ -3,7 +3,6 @@ package me.vovanov.economy.repositories;
 import me.vovanov.economy.Economy;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -20,11 +19,11 @@ public class DatabaseManager {
     }
 
     /**
-     * Возвращает активное соединение с базой данных SQLite.
-     * Если соединение закрыто или отсутствует, открывает новое.
+     * Returns the active SQLite database connection.
+     * If a connection is closed or doesn't exist - creates a new one.
      *
-     * @return Connection объект соединения
-     * @throws SQLException в случае ошибки подключения
+     * @return The Connection object
+     * @throws SQLException in case of an error while connecting
      */
     public synchronized Connection getConnection() throws SQLException {
         if (connection != null && !connection.isClosed()) {
@@ -32,10 +31,10 @@ public class DatabaseManager {
         }
 
         try {
-            // Явная инициализация драйвера для изоляции класс-лоадера Bukkit
+            // Explicit driver initialization to isolate the Bukkit class loader
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
-            Economy.getInstance().getLogger().severe("Драйвер SQLite не найден!");
+            Economy.getInstance().getLogger().severe("SQLite driver not found!");
             throw new SQLException("SQLite driver not found", e);
         }
 
@@ -45,7 +44,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Закрывает текущее соединение с базой данных.
+     * Closes the current database connection
      */
     public synchronized void close() {
         if (connection != null) {
@@ -54,7 +53,7 @@ public class DatabaseManager {
                     connection.close();
                 }
             } catch (SQLException e) {
-                Economy.getInstance().getLogger().severe("Ошибка при закрытии соединения с БД: " + e.getMessage());
+                Economy.getInstance().getLogger().severe("Couldn't close the connection with the database: " + e.getMessage());
             } finally {
                 connection = null;
             }

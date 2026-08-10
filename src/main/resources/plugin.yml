@@ -9,7 +9,17 @@ softdepend: ["DiscordSRV"]
 permissions:
   economy.reload:
     default: op
+  economy.deposit:
+    default: true
+  economy.withdraw:
+    default: true
 commands:
   economyreload:
     permission: economy.reload
     aliases: [ecoreload, ereload, erd]
+  deposit:
+    permission: economy.deposit
+    aliases: [dep]
+  withdraw:
+    permission: economy.withdraw
+    aliases: [wd]
