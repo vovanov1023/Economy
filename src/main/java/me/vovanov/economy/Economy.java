@@ -1,5 +1,6 @@
 package me.vovanov.economy;
 
+import me.vovanov.economy.commands.BalanceCommand;
 import me.vovanov.economy.commands.DepositCommand;
 import me.vovanov.economy.commands.EcoReloadCommand;
 import me.vovanov.economy.commands.WithdrawCommand;
@@ -82,6 +83,7 @@ public final class Economy extends JavaPlugin implements Listener {
         Objects.requireNonNull(getCommand("economyreload")).setExecutor(new EcoReloadCommand());
         Objects.requireNonNull(getCommand("withdraw")).setExecutor(new WithdrawCommand());
         Objects.requireNonNull(getCommand("deposit")).setExecutor(new DepositCommand());
+        Objects.requireNonNull(getCommand("balance")).setExecutor(new BalanceCommand());
     }
 
     private void registerEventListeners() {
