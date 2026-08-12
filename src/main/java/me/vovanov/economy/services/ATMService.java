@@ -7,21 +7,26 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ATMService {
-    private static final ArrayList<ATM> ATMList = new ArrayList<>();
+    private final ArrayList<ATM> ATMList = new ArrayList<>();
+    private final ATMRepository repository;
 
-    public static void setup(ATMRepository repository) {
-        ATMList.addAll(repository.loadAllATMs());
+    public ATMService(ATMRepository repo) {
+        this.repository = repo;
+        ATMList.addAll(repo.loadAllATMs());
     }
 
-    public static boolean isNearATM(Player player) {
+    public boolean isNearATM(Player player) {
+        if (ATMList.isEmpty()) return false;
         int ATMRadius = ConfigService.getInstance().getAtmRadius();
         long ATMRadiusSquared = (long) ATMRadius *ATMRadius;
         Location playerLocation = player.getLocation();
         for (ATM atm : ATMList) {
-            if (playerLocation.getWorld().getName().equals(atm.getWorldName())) continue;
-            Location atmLocation = new Location(Bukkit.getWorld(atm.getWorldName()), atm.getX(), atm.getY(), atm.getZ());
+            if (!playerLocation.getWorld().getName().equals(atm.worldName())) continue;
+            Location atmLocation = new Location(Bukkit.getWorld(atm.worldName()), atm.x(), atm.y(), atm.z());
             if (playerLocation.distanceSquared(atmLocation) <= ATMRadiusSquared) {
                 return true;
             }
@@ -29,11 +34,16 @@ public class ATMService {
         return false;
     }
 
-    public static void addATM(ATM atm) {
-        ATMList.add(atm);
+    public void createATM(int x, int y, int z, String worldName) {
+        ATM newATM = repository.createATM(worldName, x, y, z);
+        ATMList.add(newATM);
     }
 
-    public static void removeATM(int id) {
-        ATMList.removeIf(atm -> atm.getId() == id);
+    public void removeATM(int id) {
+        ATMList.removeIf(atm -> atm.id() == id);
+    }
+
+    public List<ATM> getATMList() {
+        return Collections.unmodifiableList(ATMList);
     }
 }

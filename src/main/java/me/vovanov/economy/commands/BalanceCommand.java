@@ -11,6 +11,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
 public class BalanceCommand implements CommandExecutor {
+
+    private final EconomyAPI api;
+
+    public BalanceCommand(EconomyAPI api) {
+        this.api = api;
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NonNull @NotNull String[] args) {
 
@@ -19,7 +26,7 @@ public class BalanceCommand implements CommandExecutor {
                 sender.sendMessage("You may only see other's balances (/balance [name])");
                 return true;
             }
-            int balance = EconomyAPI.getUserBalance(player.getUniqueId());
+            int balance = api.getUserBalance(player.getUniqueId());
             if (balance == -1) {
                 player.sendMessage("You need to have a bank account to use this command!");
                 return true;
@@ -38,7 +45,7 @@ public class BalanceCommand implements CommandExecutor {
             sender.sendMessage(name+" had never joined the server before");
             return true;
         }
-        int balance = EconomyAPI.getUserBalance(queried.getUniqueId());
+        int balance = api.getUserBalance(queried.getUniqueId());
         if (balance == -1) {
             sender.sendMessage(name+" doesn't have a bank account");
             return true;

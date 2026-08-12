@@ -1,25 +1,32 @@
 package me.vovanov.economy;
 
+import me.vovanov.economy.api.EconomyAPI;
+import me.vovanov.economy.api.EconomyAPIImpl;
 import me.vovanov.economy.commands.BalanceCommand;
 import me.vovanov.economy.commands.DepositCommand;
 import me.vovanov.economy.commands.EcoReloadCommand;
 import me.vovanov.economy.commands.WithdrawCommand;
+import me.vovanov.economy.listeners.AsyncPlayerJoinListener;
 import me.vovanov.economy.repositories.*;
 import me.vovanov.economy.services.ATMService;
 import me.vovanov.economy.services.DiscordIntegrationService;
 import me.vovanov.economy.services.ConfigService;
 import me.vovanov.economy.services.EconomyUserService;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Objects;
 
 public final class Economy extends JavaPlugin implements Listener {
     private static Economy instance;
     private DatabaseManager dbManager;
+    private EconomyUserService userService;
+    private ATMService atmService;
+    private EconomyAPI api;
 
     @Override
     public void onEnable() {
@@ -35,11 +42,15 @@ public final class Economy extends JavaPlugin implements Listener {
         try {
             BankAccountRepository accountRepo = new SQLiteBankAccountRepository(dbManager);
             accountRepo.setup();
-            EconomyUserService.setup(accountRepo);
+            userService = new EconomyUserService(accountRepo);
 
             ATMRepository atmRepo = new SQLiteATMRepository(dbManager);
             atmRepo.setup();
-            ATMService.setup(atmRepo);
+            atmService = new ATMService(atmRepo);
+
+            api = new EconomyAPIImpl(userService, atmService);
+
+            getServer().getServicesManager().register(EconomyAPI.class, api, this, ServicePriority.Normal);
 
             this.getLogger().info("Database initialized successfully");
         } catch (Exception e) {
@@ -54,8 +65,7 @@ public final class Economy extends JavaPlugin implements Listener {
 
         setupVault();
 
-        BukkitRunnable autoSave = new BukkitRunnable() {@Override public void run() {EconomyUserService.saveUsers();}};
-        autoSave.runTaskTimerAsynchronously(this, 6000, 6000);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, task -> userService.saveUsers(), 6000, 6000);
 
         DiscordIntegrationService discord = DiscordIntegrationService.getInstance();
         discord.initialiseBot(config.getBotToken(), config.getChannelId());
@@ -70,25 +80,25 @@ public final class Economy extends JavaPlugin implements Listener {
             this.dbManager.close();
             this.getLogger().info("Database connection closed");
         }
-        EconomyUserService.saveUsers();
+        userService.saveUsers();
         this.getLogger().info("Plugin disabled");
     }
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
-        EconomyUserService.unloadUser(event.getPlayer());
+        userService.unloadUser(event.getPlayer());
     }
 
     private void registerCommands() {
         Objects.requireNonNull(getCommand("economyreload")).setExecutor(new EcoReloadCommand());
-        Objects.requireNonNull(getCommand("withdraw")).setExecutor(new WithdrawCommand());
-        Objects.requireNonNull(getCommand("deposit")).setExecutor(new DepositCommand());
-        Objects.requireNonNull(getCommand("balance")).setExecutor(new BalanceCommand());
+        Objects.requireNonNull(getCommand("withdraw")).setExecutor(new WithdrawCommand(api));
+        Objects.requireNonNull(getCommand("deposit")).setExecutor(new DepositCommand(api));
+        Objects.requireNonNull(getCommand("balance")).setExecutor(new BalanceCommand(api));
     }
 
     private void registerEventListeners() {
         getServer().getPluginManager().registerEvents(this, this);
-        getServer().getPluginManager().registerEvents(new me.vovanov.economy.listeners.AsyncPlayerJoinListener(), this);
+        getServer().getPluginManager().registerEvents(new AsyncPlayerJoinListener(api), this);
     }
 
     private void setupVault() {

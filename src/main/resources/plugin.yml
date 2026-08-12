@@ -13,13 +13,22 @@ permissions:
     default: true
   economy.withdraw:
     default: true
+  economy.balance:
+    default: true
+  economy.balance.others:
+    default: op
 commands:
   economyreload:
     permission: economy.reload
     aliases: [ecoreload, ereload, erd]
   deposit:
     permission: economy.deposit
+    usage: "Usage: /deposit [amount]"
     aliases: [dep]
   withdraw:
     permission: economy.withdraw
+    usage: "Usage: /withdraw [amount]"
     aliases: [wd]
+  balance:
+    permission: economy.balance
+    aliases: [bal]

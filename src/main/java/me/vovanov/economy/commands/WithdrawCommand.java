@@ -3,7 +3,6 @@ package me.vovanov.economy.commands;
 import me.vovanov.economy.Economy;
 import me.vovanov.economy.api.EconomyAPI;
 import me.vovanov.economy.model.enums.TransactionResult;
-import me.vovanov.economy.services.ATMService;
 import me.vovanov.economy.services.ConfigService;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -17,6 +16,13 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class WithdrawCommand implements CommandExecutor {
+
+    private final EconomyAPI api;
+
+    public WithdrawCommand(EconomyAPI api) {
+        this.api = api;
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NonNull @NotNull String[] args) {
         Economy plugin = Economy.getInstance();
@@ -38,7 +44,7 @@ public class WithdrawCommand implements CommandExecutor {
             return false;
         }
 
-        if (!EconomyAPI.hasBankAccount(player.getUniqueId())) {
+        if (!api.hasBankAccount(player.getUniqueId())) {
             player.sendMessage("You need to have a bank account to use this command!");
             return true;
         }
@@ -48,12 +54,12 @@ public class WithdrawCommand implements CommandExecutor {
             return false;
         }
 
-        if (!ATMService.isNearATM(player)) {
+        if (!api.isNearATM(player)) {
             player.sendMessage("You need to be near an ATM to use this command!");
             return true;
         }
 
-        TransactionResult result = EconomyAPI.withdrawUser(player.getUniqueId(), amount);
+        TransactionResult result = api.withdrawUser(player.getUniqueId(), amount);
 
         if (result == TransactionResult.SUCCESS) {
             HashMap<Integer, ItemStack> didNotFitMap = player.getInventory().addItem(new ItemStack(config.getCurrencyMaterial(), amount));
@@ -64,7 +70,7 @@ public class WithdrawCommand implements CommandExecutor {
                 // TODO config option to send the cash that didn't fit back to your bank account
                 player.sendMessage("Though some cash didn't fit in your inventory and was dropped to the ground ("+didNotFitAmount+" "+config.getCurrencyAlias()+")");
             }
-            player.sendMessage("Your new balance is: "+EconomyAPI.getUserBalance(player.getUniqueId()));
+            player.sendMessage("Your new balance is: "+api.getUserBalance(player.getUniqueId()));
             return true;
         }
         if (result == TransactionResult.INSUFFICIENT_FUNDS) {

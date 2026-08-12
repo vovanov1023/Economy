@@ -3,7 +3,6 @@ package me.vovanov.economy.commands;
 import me.vovanov.economy.Economy;
 import me.vovanov.economy.api.EconomyAPI;
 import me.vovanov.economy.model.enums.TransactionResult;
-import me.vovanov.economy.services.ATMService;
 import me.vovanov.economy.services.ConfigService;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -16,6 +15,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
 public class DepositCommand implements CommandExecutor {
+    private final EconomyAPI api;
+
+    public DepositCommand(EconomyAPI api) {
+        this.api = api;
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NonNull @NotNull String[] args) {
@@ -38,7 +42,7 @@ public class DepositCommand implements CommandExecutor {
             return false;
         }
 
-        if (!EconomyAPI.hasBankAccount(player.getUniqueId())) {
+        if (!api.hasBankAccount(player.getUniqueId())) {
             player.sendMessage("You need to have a bank account to use this command!");
             return true;
         }
@@ -48,7 +52,7 @@ public class DepositCommand implements CommandExecutor {
             return false;
         }
 
-        if (!ATMService.isNearATM(player)) {
+        if (!api.isNearATM(player)) {
             player.sendMessage("You need to be near an ATM to use this command!");
             return true;
         }
@@ -59,11 +63,11 @@ public class DepositCommand implements CommandExecutor {
             return true;
         }
 
-        TransactionResult result = EconomyAPI.depositUser(player.getUniqueId(), amount);
+        TransactionResult result = api.depositUser(player.getUniqueId(), amount);
 
         if (result == TransactionResult.SUCCESS) {
             player.sendMessage("Successfully deposited "+amount+" "+config.getCurrencyAlias()+" to your bank account!");
-            player.sendMessage("Your new balance is: "+EconomyAPI.getUserBalance(player.getUniqueId()));
+            player.sendMessage("Your new balance is: "+api.getUserBalance(player.getUniqueId()));
             return true;
         }
 

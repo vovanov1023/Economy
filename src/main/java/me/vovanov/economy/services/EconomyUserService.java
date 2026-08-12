@@ -11,50 +11,50 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EconomyUserService {
-    private static final ConcurrentHashMap<UUID, EconomyUser> economyUserMap = new ConcurrentHashMap<>();
-    private static BankAccountRepository repository;
+    private final ConcurrentHashMap<UUID, EconomyUser> economyUserMap = new ConcurrentHashMap<>();
+    private final BankAccountRepository repository;
 
-    public static void setup(BankAccountRepository repo) {
-        repository = repo;
+    public EconomyUserService(BankAccountRepository repo) {
+        this.repository = repo;
     }
 
-    public static EconomyUser getUser(OfflinePlayer player) {
+    public EconomyUser getUser(OfflinePlayer player) {
         return getUser(player.getUniqueId());
     }
 
-    public static EconomyUser getUser(UUID uuid) {
+    public EconomyUser getUser(UUID uuid) {
         return economyUserMap.computeIfAbsent(uuid, k -> repository.load(uuid));
     }
 
-    public static EconomyUser createBankAccount(UUID playerID) {
+    public EconomyUser createBankAccount(UUID playerID) {
         repository.createNewAccount(playerID);
         return getUser(playerID);
     }
 
-    public static EconomyUser createBankAccount(OfflinePlayer player) {
+    public EconomyUser createBankAccount(OfflinePlayer player) {
         return createBankAccount(player.getUniqueId());
     }
 
-    public static void unloadUser(OfflinePlayer player) {
+    public void unloadUser(OfflinePlayer player) {
         EconomyUser user = economyUserMap.remove(player.getUniqueId());
         if (user != null) Bukkit.getScheduler().runTaskAsynchronously(Economy.getInstance(), task -> repository.save(user));
     }
 
-    public static void saveUsers() {
+    public void saveUsers() {
         for (EconomyUser user : economyUserMap.values()) {
             repository.save(user);
         }
     }
 
-    public static void modifyBalance(EconomyUser user, int amount) {
+    public void modifyBalance(EconomyUser user, int amount) {
         user.deposit(amount);
     }
 
-    public static void setBalance(EconomyUser user, int newBalance) {
+    public void setBalance(EconomyUser user, int newBalance) {
         user.setBalance(newBalance);
     }
 
-    public static TransactionResult transferMoney(EconomyUser sender, EconomyUser receiver, int amount, String comment) {
+    public TransactionResult transferMoney(EconomyUser sender, EconomyUser receiver, int amount, String comment) {
 
         if (sender == null) return TransactionResult.SENDER_NOT_FOUND;
         if (receiver == null) return TransactionResult.RECEIVER_NOT_FOUND;
