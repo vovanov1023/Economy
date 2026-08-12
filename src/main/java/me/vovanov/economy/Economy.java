@@ -76,11 +76,11 @@ public final class Economy extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         DiscordIntegrationService.getInstance().shutDownJDA();
+        userService.saveUsers();
         if (this.dbManager != null) {
             this.dbManager.close();
             this.getLogger().info("Database connection closed");
         }
-        userService.saveUsers();
         this.getLogger().info("Plugin disabled");
     }
 

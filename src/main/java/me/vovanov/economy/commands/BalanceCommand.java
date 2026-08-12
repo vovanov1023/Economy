@@ -32,6 +32,7 @@ public class BalanceCommand implements CommandExecutor {
                 return true;
             }
             player.sendMessage("Your balance is: "+balance);
+            return true;
         }
 
         if (!sender.hasPermission("economy.balance.others")) {

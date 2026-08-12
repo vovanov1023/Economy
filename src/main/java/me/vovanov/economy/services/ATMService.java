@@ -40,6 +40,7 @@ public class ATMService {
     }
 
     public void removeATM(int id) {
+        repository.deleteATM(id);
         ATMList.removeIf(atm -> atm.id() == id);
     }
 

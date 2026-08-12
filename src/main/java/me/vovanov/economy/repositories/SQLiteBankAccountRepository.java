@@ -40,16 +40,6 @@ public class SQLiteBankAccountRepository implements BankAccountRepository {
                     "interest_rate DOUBLE NOT NULL, " +
                     "deadline BIGINT NOT NULL" +
                     ");");
-            // ATMs table
-            stmt.execute("CREATE TABLE IF NOT EXISTS atms (" +
-                    "    id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    "    world TEXT NOT NULL," +
-                    "    x INTEGER NOT NULL," +
-                    "    y INTEGER NOT NULL," +
-                    "    z INTEGER NOT NULL," +
-                    "    UNIQUE(world, x, y, z)" +
-                    ");");
-
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_credits_player ON credits(player_uuid);");
         }
     }
@@ -120,69 +110,68 @@ public class SQLiteBankAccountRepository implements BankAccountRepository {
 
     @Override
     public void save(EconomyUser user) {
-        synchronized(dbManager) {
-            UUID uuid = user.getPlayerUUID();
-            String uuidStr = uuid.toString();
+        UUID uuid = user.getPlayerUUID();
+        String uuidStr = uuid.toString();
 
-            String saveBalanceQuery = "INSERT OR REPLACE INTO accounts (uuid, balance) VALUES (?, ?);";
-            String deleteCreditsQuery = "DELETE FROM credits WHERE player_uuid = ?;";
-            String insertCreditQuery = "INSERT INTO credits (id, player_uuid, amount, original_principal, interest_rate, deadline) VALUES (?, ?, ?, ?, ?, ?);";
+        String saveBalanceQuery = "INSERT OR REPLACE INTO accounts (uuid, balance) VALUES (?, ?);";
+        String deleteCreditsQuery = "DELETE FROM credits WHERE player_uuid = ?;";
+        String insertCreditQuery = "INSERT INTO credits (id, player_uuid, amount, original_principal, interest_rate, deadline) VALUES (?, ?, ?, ?, ?, ?);";
 
-            Connection conn = null;
-            try {
-                conn = dbManager.getConnection();
+        Connection conn = null;
+        try {
+            conn = dbManager.getConnection();
 
-                conn.setAutoCommit(false);
+            conn.setAutoCommit(false);
 
-                // 1. Saving the balance
-                try (PreparedStatement psBalance = conn.prepareStatement(saveBalanceQuery)) {
-                    psBalance.setString(1, uuidStr);
-                    psBalance.setInt(2, user.getBalance());
-                    psBalance.executeUpdate();
-                }
+            // 1. Saving the balance
+            try (PreparedStatement psBalance = conn.prepareStatement(saveBalanceQuery)) {
+                psBalance.setString(1, uuidStr);
+                psBalance.setInt(2, user.getBalance());
+                psBalance.executeUpdate();
+            }
 
-                // 2. Clearing the old credit data
-                try (PreparedStatement psDelete = conn.prepareStatement(deleteCreditsQuery)) {
-                    psDelete.setString(1, uuidStr);
-                    psDelete.executeUpdate();
-                }
+            // 2. Clearing the old credit data
+            try (PreparedStatement psDelete = conn.prepareStatement(deleteCreditsQuery)) {
+                psDelete.setString(1, uuidStr);
+                psDelete.executeUpdate();
+            }
 
-                // 3. Pasting the current credit data
-                if (!user.getActiveCredits().isEmpty()) {
-                    try (PreparedStatement psInsert = conn.prepareStatement(insertCreditQuery)) {
-                        for (CreditEntry credit : user.getActiveCredits()) {
-                            psInsert.setString(1, credit.getId().toString());
-                            psInsert.setString(2, uuidStr);
-                            psInsert.setInt(3, credit.getAmount());
-                            psInsert.setInt(4, credit.getOriginalPrincipal());
-                            psInsert.setDouble(5, credit.getInterestRate());
-                            psInsert.setLong(6, credit.getDeadline());
+            // 3. Pasting the current credit data
+            if (!user.getActiveCredits().isEmpty()) {
+                try (PreparedStatement psInsert = conn.prepareStatement(insertCreditQuery)) {
+                    for (CreditEntry credit : user.getActiveCredits()) {
+                        psInsert.setString(1, credit.getId().toString());
+                        psInsert.setString(2, uuidStr);
+                        psInsert.setInt(3, credit.getAmount());
+                        psInsert.setInt(4, credit.getOriginalPrincipal());
+                        psInsert.setDouble(5, credit.getInterestRate());
+                        psInsert.setLong(6, credit.getDeadline());
 
-                            psInsert.addBatch();
-                        }
-                        psInsert.executeBatch();
+                        psInsert.addBatch();
                     }
+                    psInsert.executeBatch();
                 }
+            }
 
-                // Confirm
-                conn.commit();
+            // Confirm
+            conn.commit();
 
-            } catch (SQLException e) {
-                Economy.getInstance().getLogger().severe("Couldn't save data for " + uuidStr + ": " + e.getMessage());
-                if (conn != null) {
-                    try {
-                        conn.rollback(); // Rollback the transaction in case of an error
-                    } catch (SQLException rollbackEx) {
-                        Economy.getInstance().getLogger().severe("Couldn't roll back the transaction: " + rollbackEx.getMessage());
-                    }
+        } catch (SQLException e) {
+            Economy.getInstance().getLogger().severe("Couldn't save data for " + uuidStr + ": " + e.getMessage());
+            if (conn != null) {
+                try {
+                    conn.rollback(); // Rollback the transaction in case of an error
+                } catch (SQLException rollbackEx) {
+                    Economy.getInstance().getLogger().severe("Couldn't roll back the transaction: " + rollbackEx.getMessage());
                 }
-            } finally {
-                if (conn != null) {
-                    try {
-                        conn.setAutoCommit(true); // Enabling autoCommit back
-                    } catch (SQLException e) {
-                        Economy.getInstance().getLogger().severe("Couldn't enable autoCommit back: " + e.getMessage());
-                    }
+            }
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true); // Enabling autoCommit back
+                    conn.close();
+                } catch (SQLException e) {
+                    Economy.getInstance().getLogger().severe("Couldn't enable autoCommit back: " + e.getMessage());
                 }
             }
         }
