@@ -1,11 +1,13 @@
 package me.vovanov.economy.api;
 
+import me.vovanov.economy.model.ATM;
 import me.vovanov.economy.model.EconomyUser;
 import me.vovanov.economy.model.enums.TransactionResult;
 import me.vovanov.economy.services.ATMService;
 import me.vovanov.economy.services.EconomyUserService;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.UUID;
 
 public class EconomyAPIImpl implements EconomyAPI {
@@ -29,7 +31,7 @@ public class EconomyAPIImpl implements EconomyAPI {
         if (user == null) return TransactionResult.USER_NOT_FOUND;
         if (amount <= 0) return TransactionResult.INVALID_AMOUNT;
         if (user.getBalance() < amount) return TransactionResult.INSUFFICIENT_FUNDS;
-        user.withdraw(amount);
+        userService.modifyBalance(user, -amount);
         return TransactionResult.SUCCESS;
     }
 
@@ -44,7 +46,7 @@ public class EconomyAPIImpl implements EconomyAPI {
         EconomyUser user = userService.getUser(userID);
         if (user == null) return TransactionResult.USER_NOT_FOUND;
         if (amount <= 0) return TransactionResult.INVALID_AMOUNT;
-        user.deposit(amount);
+        userService.modifyBalance(user, amount);
         return TransactionResult.SUCCESS;
     }
 
@@ -75,7 +77,32 @@ public class EconomyAPIImpl implements EconomyAPI {
     }
 
     @Override
+    public boolean doesATMExist(int x, int y, int z, String worldName) {
+        return getATMList().stream().anyMatch(atm -> atm.x() == x && atm.y() == y && atm.z() == z && atm.worldName().equals(worldName));
+    }
+
+    @Override
+    public boolean doesATMExist(int id) {
+        return getATMList().stream().anyMatch(atm -> atm.id() == id);
+    }
+
+    @Override
     public void createBankAccount(UUID userID) {
         userService.createBankAccount(userID);
+    }
+
+    @Override
+    public ATM createATM(int x, int y, int z, String worldName) {
+        return atmService.createATM(x, y, z, worldName);
+    }
+
+    @Override
+    public void removeATM(int id) {
+        atmService.removeATM(id);
+    }
+
+    @Override
+    public List<ATM> getATMList() {
+        return atmService.getATMList();
     }
 }

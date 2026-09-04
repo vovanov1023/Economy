@@ -3,7 +3,7 @@ version: ${pluginVersion}
 main: me.vovanov.economy.Economy
 api-version: ${minecraftVersion}
 author: vovanov
-description: Жёсткая крутая экономика
+description: The economy plugin
 depend: [Vault]
 softdepend: ["DiscordSRV"]
 permissions:
@@ -17,18 +17,26 @@ permissions:
     default: true
   economy.balance.others:
     default: op
+  economy.atm:
+    default: op
+  economy.atm.remove:
+    default: op
+  economy.atm.create:
+    default: op
+  economy.atm.list:
+    default: op
 commands:
   economyreload:
     permission: economy.reload
     aliases: [ecoreload, ereload, erd]
   deposit:
     permission: economy.deposit
-    usage: "Usage: /deposit [amount]"
     aliases: [dep]
   withdraw:
     permission: economy.withdraw
-    usage: "Usage: /withdraw [amount]"
     aliases: [wd]
   balance:
     permission: economy.balance
     aliases: [bal]
+  atm:
+    permission: economy.atm

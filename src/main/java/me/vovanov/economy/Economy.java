@@ -2,10 +2,7 @@ package me.vovanov.economy;
 
 import me.vovanov.economy.api.EconomyAPI;
 import me.vovanov.economy.api.EconomyAPIImpl;
-import me.vovanov.economy.commands.BalanceCommand;
-import me.vovanov.economy.commands.DepositCommand;
-import me.vovanov.economy.commands.EcoReloadCommand;
-import me.vovanov.economy.commands.WithdrawCommand;
+import me.vovanov.economy.commands.*;
 import me.vovanov.economy.listeners.AsyncPlayerJoinListener;
 import me.vovanov.economy.repositories.*;
 import me.vovanov.economy.services.ATMService;
@@ -25,7 +22,6 @@ public final class Economy extends JavaPlugin implements Listener {
     private static Economy instance;
     private DatabaseManager dbManager;
     private EconomyUserService userService;
-    private ATMService atmService;
     private EconomyAPI api;
 
     @Override
@@ -46,7 +42,7 @@ public final class Economy extends JavaPlugin implements Listener {
 
             ATMRepository atmRepo = new SQLiteATMRepository(dbManager);
             atmRepo.setup();
-            atmService = new ATMService(atmRepo);
+            ATMService atmService = new ATMService(atmRepo);
 
             api = new EconomyAPIImpl(userService, atmService);
 
@@ -94,6 +90,9 @@ public final class Economy extends JavaPlugin implements Listener {
         Objects.requireNonNull(getCommand("withdraw")).setExecutor(new WithdrawCommand(api));
         Objects.requireNonNull(getCommand("deposit")).setExecutor(new DepositCommand(api));
         Objects.requireNonNull(getCommand("balance")).setExecutor(new BalanceCommand(api));
+        ATMCommand atmCommand = new ATMCommand(api);
+        Objects.requireNonNull(getCommand("atm")).setExecutor(atmCommand);
+        Objects.requireNonNull(getCommand("atm")).setTabCompleter(atmCommand);
     }
 
     private void registerEventListeners() {
@@ -105,12 +104,12 @@ public final class Economy extends JavaPlugin implements Listener {
         if (getServer().getPluginManager().getPlugin("Vault") == null) {
             return;
         }
-        getServer().getServicesManager().register(
+        /*getServer().getServicesManager().register(
                 net.milkbowl.vault.economy.Economy.class,
                 new me.vovanov.economy.api.VaultEconomyProvider(),
                 this,
                 org.bukkit.plugin.ServicePriority.Highest
-        );
+        );*/
     }
 
     public static Economy getInstance() {

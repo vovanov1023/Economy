@@ -1,8 +1,10 @@
 package me.vovanov.economy.api;
 
+import me.vovanov.economy.model.ATM;
 import me.vovanov.economy.model.enums.TransactionResult;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface EconomyAPI {
@@ -36,14 +38,39 @@ public interface EconomyAPI {
     boolean hasBankAccount(UUID userID);
 
     /**
+     * Creates a bank account for the player (or just doesn't if it already exists)
+     * @param userID the players UUID
+     * */
+    void createBankAccount(UUID userID);
+
+    /**
+     * atm create
+     * */
+    ATM createATM(int x, int y, int z, String worldName);
+
+    /**
+     * atm remove
+     * */
+    void removeATM(int id);
+
+    /**
+     * atm immutable list gete
+     * */
+    List<ATM> getATMList();
+
+    /**
      * @param player the player
      * @return true if a player is near an ATM ("near" is defined in the config)
      * */
     boolean isNearATM(Player player);
 
     /**
-     * Creates a bank account for the player (or just doesn't if it already exists)
-     * @param userID the players UUID
+     * get if thingy existe
      * */
-    void createBankAccount(UUID userID);
+    boolean doesATMExist(int x, int y, int z, String worldName);
+
+    /**
+     * get if thingy existe
+     * */
+    boolean doesATMExist(int id);
 }

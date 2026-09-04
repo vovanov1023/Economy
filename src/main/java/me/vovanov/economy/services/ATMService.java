@@ -34,9 +34,10 @@ public class ATMService {
         return false;
     }
 
-    public void createATM(int x, int y, int z, String worldName) {
+    public ATM createATM(int x, int y, int z, String worldName) {
         ATM newATM = repository.createATM(worldName, x, y, z);
         ATMList.add(newATM);
+        return newATM;
     }
 
     public void removeATM(int id) {
