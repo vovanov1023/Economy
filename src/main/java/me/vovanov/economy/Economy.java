@@ -105,12 +105,12 @@ public final class Economy extends JavaPlugin implements Listener {
         if (getServer().getPluginManager().getPlugin("Vault") == null) {
             return;
         }
-        /*getServer().getServicesManager().register(
+        getServer().getServicesManager().register(
                 net.milkbowl.vault.economy.Economy.class,
-                new me.vovanov.economy.api.VaultEconomyProvider(),
+                new me.vovanov.economy.api.VaultEconomyProvider(api),
                 this,
                 org.bukkit.plugin.ServicePriority.Highest
-        );*/
+        );
     }
 
     public static Economy getInstance() {
