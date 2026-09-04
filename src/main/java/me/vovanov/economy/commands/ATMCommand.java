@@ -162,7 +162,7 @@ public class ATMCommand implements CommandExecutor, TabCompleter {
         }
 
         if (list.isEmpty()) {
-            sender.sendMessage("Список банкоматов пуст.");
+            sender.sendMessage("The ATM list is empty");
             return;
         }
         int pageSize = 5;

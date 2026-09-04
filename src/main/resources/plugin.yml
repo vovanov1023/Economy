@@ -25,6 +25,8 @@ permissions:
     default: op
   economy.atm.list:
     default: op
+  economy.pay:
+    default: true
 commands:
   economyreload:
     permission: economy.reload
@@ -40,3 +42,5 @@ commands:
     aliases: [bal]
   atm:
     permission: economy.atm
+  pay:
+    permission: economy.pay

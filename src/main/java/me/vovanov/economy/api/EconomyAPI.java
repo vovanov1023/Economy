@@ -25,6 +25,15 @@ public interface EconomyAPI {
     TransactionResult depositUser(UUID userID, int amount);
 
     /**
+     * Transfers an amount of money from user to another
+     * @param senderID the sender player UUID
+     * @param receiverID the receiver playerUUID
+     * @param amount the amount to transfer
+     * @return the result of the transaction
+     * */
+    TransactionResult transferMoney(UUID senderID, UUID receiverID, int amount);
+
+    /**
      * Gets the users balance
      * @param userID the players UUID
      * @return the balance or -1 if the user doesn't exist

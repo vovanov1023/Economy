@@ -54,26 +54,4 @@ public class EconomyUserService {
         user.setBalance(newBalance);
     }
 
-    public TransactionResult transferMoney(EconomyUser sender, EconomyUser receiver, int amount, String comment) {
-
-        if (sender == null) return TransactionResult.SENDER_NOT_FOUND;
-        if (receiver == null) return TransactionResult.RECEIVER_NOT_FOUND;
-
-        int senderBalance = sender.getBalance();
-        if (amount <= 0) return TransactionResult.INVALID_AMOUNT;
-        if (senderBalance < amount) return TransactionResult.INSUFFICIENT_FUNDS;
-
-        sender.withdraw(amount);
-        receiver.deposit(amount);
-        repository.save(sender);
-        repository.save(receiver);
-
-        String finalComment = (comment == null || comment.isEmpty()) ? "No comment" : comment;
-        String senderName = org.bukkit.Bukkit.getOfflinePlayer(sender.getPlayerUUID()).getName();
-        String receiverName = org.bukkit.Bukkit.getOfflinePlayer(receiver.getPlayerUUID()).getName();
-        DiscordIntegrationService.getInstance().sendToLogChannel(senderName+" transferred "+amount+" "+ConfigService.getInstance().getCurrencyAlias()+" to "+receiverName+"\nComment: "+finalComment);
-
-        return TransactionResult.SUCCESS;
-    }
-
 }

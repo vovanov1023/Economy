@@ -93,6 +93,7 @@ public final class Economy extends JavaPlugin implements Listener {
         ATMCommand atmCommand = new ATMCommand(api);
         Objects.requireNonNull(getCommand("atm")).setExecutor(atmCommand);
         Objects.requireNonNull(getCommand("atm")).setTabCompleter(atmCommand);
+        Objects.requireNonNull(getCommand("pay")).setExecutor(new TransferCommand(api));
     }
 
     private void registerEventListeners() {

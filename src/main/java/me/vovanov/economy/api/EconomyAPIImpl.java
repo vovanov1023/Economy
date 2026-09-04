@@ -4,6 +4,8 @@ import me.vovanov.economy.model.ATM;
 import me.vovanov.economy.model.EconomyUser;
 import me.vovanov.economy.model.enums.TransactionResult;
 import me.vovanov.economy.services.ATMService;
+import me.vovanov.economy.services.ConfigService;
+import me.vovanov.economy.services.DiscordIntegrationService;
 import me.vovanov.economy.services.EconomyUserService;
 import org.bukkit.entity.Player;
 
@@ -47,6 +49,32 @@ public class EconomyAPIImpl implements EconomyAPI {
         if (user == null) return TransactionResult.USER_NOT_FOUND;
         if (amount <= 0) return TransactionResult.INVALID_AMOUNT;
         userService.modifyBalance(user, amount);
+        return TransactionResult.SUCCESS;
+    }
+
+    /**
+     * Transfers an amount of money from user to another
+     * @param senderID the sender player UUID
+     * @param receiverID the receiver playerUUID
+     * @param amount the amount to transfer
+     * @return the result of the transaction
+     * */
+    @Override
+    public TransactionResult transferMoney(UUID senderID, UUID receiverID, int amount) {
+
+        EconomyUser sender = userService.getUser(senderID);
+        EconomyUser receiver = userService.getUser(receiverID);
+
+        if (sender == null) return TransactionResult.SENDER_NOT_FOUND;
+        if (receiver == null) return TransactionResult.RECEIVER_NOT_FOUND;
+
+        int senderBalance = sender.getBalance();
+        if (amount <= 0) return TransactionResult.INVALID_AMOUNT;
+        if (senderBalance < amount) return TransactionResult.INSUFFICIENT_FUNDS;
+
+        userService.modifyBalance(sender, -amount);
+        userService.modifyBalance(receiver, amount);
+
         return TransactionResult.SUCCESS;
     }
 
